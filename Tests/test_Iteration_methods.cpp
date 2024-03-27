@@ -3,6 +3,8 @@
 #include "../src/iteration_methods/Jacobi.hpp"
 #include "../src/iteration_methods/gauss_seidel.hpp"
 #include "../src/iteration_methods/MPI_chebyshev.hpp"
+#include "../src/iteration_methods/sim_gauss_zeidel.hpp"
+#include "../src/iteration_methods/fastest_gradient_descent.hpp"
 #include "gtest/gtest.h"
 
 TEST(MPI, _3x3_matrix){
@@ -94,10 +96,31 @@ TEST(MPI_chebyshev, _3x3_matrix){
     double tolerance = pow(10,-12);
     std::vector<double> solution = {0.0804084117,0.0000194982, 0.0115891967};
     std::pair<std::vector<double>, std::pair<double, long unsigned int> > result = chebyshev_mpi(M, b, x, tolerance, 3, 2.25, 15.88);
-//    for (int i = 0; i < result.size(); i++){
-//        ASSERT_NEAR(result[i], solution[i], 0.01);
-//    }
 
+}
+
+
+TEST(sim_gauss_zeidel, _3x3_matrix) {
+    std::map<std::pair<int, int>, double> v;
+    v[{0, 0}] = 12;
+    v[{0, 1}] = 17;
+    v[{0, 2}] = 3;
+    v[{1, 0}] = 17;
+    v[{1, 1}] = 15825;
+    v[{1, 2}] = 28;
+    v[{2, 0}] = 3;
+    v[{2, 1}] = 28;
+    v[{2, 2}] = 238;
+
+    Matrix M(v);
+    std::vector<double> b = { 1,2,3 };
+    std::vector<double> x = { 1,1,1 };
+    double tolerance = pow(10, -12);
+    std::vector<double> solution = { 0.0804084117,0.0000194982, 0.0115891967 };
+    std::vector<double> result = sim_gauss_zeidel(M, b, x, tolerance);
+    for (int i = 0; i < result.size(); i++) {
+        ASSERT_NEAR(result[i], solution[i], 0.01);
+    }
 }
 
 int main(int argc, char **argv) {
